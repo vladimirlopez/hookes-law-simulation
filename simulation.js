@@ -932,8 +932,12 @@ document.addEventListener('DOMContentLoaded', () => {
     modeTabs.forEach(tab => {
         tab.addEventListener('click', () => {
             const mode = tab.dataset.mode;
-            modeTabs.forEach(t => t.classList.remove('active'));
+            modeTabs.forEach(t => {
+                t.classList.remove('active');
+                t.classList.add('ghost');
+            });
             modeContents.forEach(c => c.classList.remove('active'));
+            tab.classList.remove('ghost');
             tab.classList.add('active');
             document.getElementById(mode + '-mode').classList.add('active');
             currentMode = mode;
