@@ -38,12 +38,12 @@ class LabSimulation {
         this.naturalLength = 120; // px natural spring length
         this.pxPerMeter = 800;    // pixels per meter of stretch
 
-        // Reference: stretch due to hanger alone
-        this.hangerStretch = (this.hangerMass * this.g) / this.springConstant;
-        this.referenceY = this.springTopY + this.naturalLength + this.hangerStretch * this.pxPerMeter;
+        // Reference: stretch at natural length
+        this.hangerStretch = 0; 
+        this.referenceY = this.springTopY + this.naturalLength;
 
         // Animation
-        this.currentStretchPx = this.hangerStretch * this.pxPerMeter;
+        this.currentStretchPx = ((this.hangerMass * this.g) / this.springConstant) * this.pxPerMeter;
         this.targetStretchPx = this.currentStretchPx;
         this.animVelocity = 0;
         this.isAnimating = false;
@@ -59,12 +59,9 @@ class LabSimulation {
 
     get totalMass() { return this.hangerMass + this.addedMass; }
     get stretch() {
-        // Stretch relative to hanger-only reference
-        const totalStretch = (this.totalMass * this.g) / this.springConstant;
-        return totalStretch - this.hangerStretch;
+        return (this.totalMass * this.g) / this.springConstant;
     }
-    get force() { return this.totalMass * this.g - this.hangerMass * this.g; }
-    // force applied = weight of added masses only = addedMass * g
+    get force() { return this.totalMass * this.g; }
 
     recalc() {
         const totalStretch = (this.totalMass * this.g) / this.springConstant;
@@ -73,8 +70,8 @@ class LabSimulation {
 
     setSpringConstant(k) {
         this.springConstant = k;
-        this.hangerStretch = (this.hangerMass * this.g) / this.springConstant;
-        this.referenceY = this.springTopY + this.naturalLength + this.hangerStretch * this.pxPerMeter;
+        this.hangerStretch = 0;
+        this.referenceY = this.springTopY + this.naturalLength;
         this.recalc();
         this.animateTo();
     }
@@ -127,7 +124,7 @@ class LabSimulation {
             addedGrams: Math.round(this.addedMass * 1000),
             totalMassKg: this.totalMass,
             stretchM: this.stretch,
-            forceN: this.addedMass * this.g // force = weight of added masses
+            forceN: this.force // total force including hanger
         };
         this.trials.push(trial);
         return trial;
@@ -437,7 +434,7 @@ class LabSimulation {
     updateLabDisplay() {
         const el = (id) => document.getElementById(id);
         el('labMass').textContent = this.totalMass.toFixed(3) + ' kg';
-        el('labForce').textContent = (this.addedMass * this.g).toFixed(3) + ' N';
+        el('labForce').textContent = this.force.toFixed(3) + ' N';
         el('labStretch').textContent = (this.stretch >= 0 ? this.stretch.toFixed(4) : '0.0000') + ' m';
         el('labTrials').textContent = this.trials.length + ' / ' + this.maxTrials;
         el('currentMassDisplay').textContent = Math.round(this.addedMass * 1000) + ' g';

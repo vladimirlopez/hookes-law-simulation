@@ -348,10 +348,17 @@ body[data-theme="light"] .metric-card {
   cursor: pointer; font-weight: 600; color: var(--text-500);
   transition: all 0.25s; border-radius: 0;
 }
-.tab-btn:hover { color: var(--text-100); }
+.tab-btn:hover { color: var(--text-100); background: rgba(128, 128, 128, 0.05); }
 .tab-btn.active {
   color: var(--gold-300); border-bottom-color: var(--gold-500);
   background: transparent;
+}
+body[data-theme="light"] .tab-btn {
+  background: transparent;
+  color: var(--text-500);
+}
+body[data-theme="light"] .tab-btn:hover {
+  color: var(--text-100);
 }
 body[data-theme="light"] .tab-btn.active {
   color: var(--gold-400); border-bottom-color: var(--gold-400);

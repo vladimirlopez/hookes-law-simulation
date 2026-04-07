@@ -15,7 +15,7 @@
     </script>
     <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
-<body>
+<body data-theme="light">
     <div class="bg-grid"></div>
     <div id="sr-announcements" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 
@@ -29,7 +29,7 @@
                     <p class="subtitle">Investigate the relationship between the force applied to a spring and how much it stretches. Build a model that describes this relationship.</p>
                 </div>
             </div>
-            <button class="display-toggle ghost" id="themeBtn" onclick="const isLight = document.body.dataset.theme === 'light'; document.body.dataset.theme = isLight ? '' : 'light'; this.textContent = isLight ? 'Light mode' : 'Dark mode';">Light mode</button>
+            <button class="display-toggle ghost" id="themeBtn" onclick="const isLight = document.body.dataset.theme === 'light'; document.body.dataset.theme = isLight ? '' : 'light'; this.textContent = isLight ? 'Light mode' : 'Dark mode';">Dark mode</button>
         </div>
 
         <!-- ===== MODE TABS ===== -->
@@ -47,7 +47,7 @@
                 <div class="inquiry-grid">
                     <div class="inquiry-card">
                         <h3>Step 1 · Set Up</h3>
-                        <p>The spring starts with only the hanger attached. This is your reference (x = 0). Add mass in 50 g increments using the controls.</p>
+                        <p>The position is zero when nothing is hanging (natural length). The 50 g hanger is already attached and causing an initial stretch. Add mass in 50 g increments.</p>
                     </div>
                     <div class="inquiry-card">
                         <h3>Step 2 · Record</h3>
@@ -198,10 +198,10 @@
                         <div>
                             <h3>The Model</h3>
                             <p>Gravity pulls the hanging mass down with force \(F = mg\). At equilibrium the spring force balances gravity:</p>
-                            <div class="equation">\(F_s = kx\)</div>
-                            <p>where <strong>k</strong> is the spring constant (N/m) and <strong>x</strong> is the stretch (m).</p>
+                            <div class="equation">\(F_s = k\Delta x\)</div>
+                            <p>where <strong>k</strong> is the spring constant (N/m) and <strong>Δx</strong> is the stretch (m).</p>
                             <h3>What Does the Slope Tell You?</h3>
-                            <p>Plotting Force (y) vs. Stretch (x) gives a straight line. The slope equals k:</p>
+                            <p>Plotting Force (y) vs. Stretch (Δx) gives a straight line. The slope equals k:</p>
                             <div class="equation">\(\text{slope} = \dfrac{\Delta F}{\Delta x} = k\)</div>
                         </div>
                         <div>
