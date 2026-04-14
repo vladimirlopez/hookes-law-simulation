@@ -390,6 +390,27 @@ footer {
   margin-top: 1rem; font-size: 0.88rem;
 }
 
+/* ===== Energy Inquiry Layout ===== */
+.energy-inquiry-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  align-items: start;
+}
+.inquiry-ol {
+  margin: 0.6rem 0 0 1.2rem;
+  padding: 0;
+  color: var(--text-300);
+}
+.inquiry-ol li {
+  margin-bottom: 0.65rem;
+  line-height: 1.55;
+}
+.inquiry-ol li strong { color: var(--gold-300); }
+@media (max-width: 780px) {
+  .energy-inquiry-layout { grid-template-columns: 1fr; }
+}
+
 /* ===== Accessibility ===== */
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;

@@ -1154,6 +1154,135 @@ document.addEventListener('DOMContentLoaded', () => {
 
         el('fpPauseBtn').disabled = true;
         el('fpStepBtn').disabled = false;
+
+        // ---- Energy Inquiry ----
+        const energyRows = [];  // { x, xSq, pe, ke, total }
+
+        function drawPEvsx2Graph() {
+            const canvas = el('pevsxSquaredGraph');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            if (canvas.width !== rect.width * dpr) { canvas.width = rect.width * dpr; canvas.height = rect.height * dpr; ctx.scale(dpr, dpr); }
+            const W = rect.width, H = rect.height;
+            const pad = { left: 60, right: 20, top: 20, bottom: 45 };
+            const pw = W - pad.left - pad.right, ph = H - pad.top - pad.bottom;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let maxX2 = 0.5, maxPE = 5;
+            for (const r of energyRows) {
+                if (r.xSq > maxX2 * 0.8) maxX2 = r.xSq * 1.3;
+                if (r.pe > maxPE * 0.8) maxPE = r.pe * 1.3;
+            }
+            maxX2 = Math.ceil(maxX2 * 10) / 10;
+            maxPE = Math.ceil(maxPE);
+
+            // Grid
+            ctx.strokeStyle = getCanvasColor('rgba(229,204,143,0.1)', 'rgba(11,95,119,0.1)'); ctx.lineWidth = 1;
+            for (let i = 0; i <= 5; i++) {
+                const y = pad.top + (i / 5) * ph; ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + pw, y); ctx.stroke();
+                const x = pad.left + (i / 5) * pw; ctx.beginPath(); ctx.moveTo(x, pad.top); ctx.lineTo(x, pad.top + ph); ctx.stroke();
+            }
+            // Axes
+            ctx.strokeStyle = getCanvasColor('rgba(229,204,143,0.4)', 'rgba(11,95,119,0.4)'); ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, pad.top + ph); ctx.lineTo(pad.left + pw, pad.top + ph); ctx.stroke();
+
+            // Labels
+            ctx.fillStyle = getCanvasColor('#a9b2c3', '#4b6570'); ctx.font = '11px Arial';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText('x² (m²)', pad.left + pw / 2, H - 14);
+            ctx.save(); ctx.translate(14, pad.top + ph / 2); ctx.rotate(-Math.PI / 2);
+            ctx.fillStyle = '#ff5f7a'; ctx.font = 'bold 12px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText('PE (J)', 0, 0); ctx.restore();
+
+            // Tick labels
+            ctx.fillStyle = getCanvasColor('#a9b2c3', '#4b6570'); ctx.font = '10px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            for (let i = 0; i <= 5; i++) ctx.fillText(((i / 5) * maxX2).toFixed(2), pad.left + (i / 5) * pw, pad.top + ph + 6);
+            ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+            for (let i = 0; i <= 5; i++) ctx.fillText((maxPE - (i / 5) * maxPE).toFixed(1), pad.left - 8, pad.top + (i / 5) * ph);
+
+            const toX = (v) => pad.left + (v / maxX2) * pw;
+            const toY = (v) => pad.top + ph - (v / maxPE) * ph;
+
+            // Best-fit line (through origin, slope = sum(xi*yi)/sum(xi^2))
+            const showFit = el('energyShowBestFit') && el('energyShowBestFit').checked;
+            if (showFit && energyRows.length >= 2) {
+                let sumXY = 0, sumX2sq = 0;
+                for (const r of energyRows) { sumXY += r.xSq * r.pe; sumX2sq += r.xSq * r.xSq; }
+                const slope = sumX2sq > 0 ? sumXY / sumX2sq : 0;
+                ctx.save(); ctx.strokeStyle = '#ff5f7a'; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+                ctx.beginPath(); ctx.moveTo(toX(0), toY(0)); ctx.lineTo(toX(maxX2), toY(Math.min(slope * maxX2, maxPE))); ctx.stroke();
+                ctx.setLineDash([]); ctx.restore();
+
+                const halfK = fpSim ? (0.5 * fpSim.springConstant) : 0;
+                el('energySlopeValue').textContent = slope.toFixed(3);
+                el('energyHalfK').textContent = halfK.toFixed(3);
+                el('energySlopeDisplay').classList.remove('hidden');
+            } else {
+                el('energySlopeDisplay').classList.add('hidden');
+            }
+
+            // Data points
+            for (let i = 0; i < energyRows.length; i++) {
+                const r = energyRows[i];
+                const px = toX(r.xSq), py = toY(r.pe);
+                ctx.fillStyle = '#c8a24a'; ctx.strokeStyle = '#d8b767'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = getCanvasColor('#090b0f', '#fff'); ctx.font = 'bold 8px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(i + 1, px, py);
+            }
+            // Origin dot
+            ctx.fillStyle = getCanvasColor('#a9b2c3', '#4b6570');
+            ctx.beginPath(); ctx.arc(toX(0), toY(0), 4, 0, Math.PI * 2); ctx.fill();
+        }
+
+        function rebuildEnergyTable() {
+            const tbody = el('energyDataBody');
+            if (energyRows.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text-500);font-style:italic;">No data yet — capture snapshots above.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = energyRows.map((r, i) => `<tr class="recorded">
+                <td>${i + 1}</td>
+                <td>${r.x.toFixed(3)}</td>
+                <td>${r.xSq.toFixed(4)}</td>
+                <td>${r.pe.toFixed(3)}</td>
+                <td>${r.ke.toFixed(3)}</td>
+                <td>${r.total.toFixed(3)}</td>
+            </tr>`).join('');
+        }
+
+        el('fpRecordEnergyBtn').addEventListener('click', () => {
+            if (!fpSim) return;
+            const x = fpSim.displacement;
+            energyRows.push({
+                x,
+                xSq: x * x,
+                pe: fpSim.potentialEnergy,
+                ke: fpSim.kineticEnergy,
+                total: fpSim.potentialEnergy + fpSim.kineticEnergy
+            });
+            rebuildEnergyTable();
+            drawPEvsx2Graph();
+        });
+
+        el('fpClearEnergyBtn').addEventListener('click', () => {
+            energyRows.length = 0;
+            rebuildEnergyTable();
+            drawPEvsx2Graph();
+        });
+
+        el('energyShowBestFit').addEventListener('change', () => drawPEvsx2Graph());
+
+        // Show/hide capture bar when Energy Inquiry tab is active
+        document.querySelectorAll('.tab-btn[data-tab^="fp-"]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                el('energyInquiryBar').style.display =
+                    btn.dataset.tab === 'fp-energy-inquiry' ? 'flex' : 'none';
+                if (btn.dataset.tab === 'fp-energy-inquiry') drawPEvsx2Graph();
+            });
+        });
     }
 
     // ---- Keyboard shortcuts ----

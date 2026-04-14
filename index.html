@@ -243,6 +243,12 @@
                         <div class="metric-card"><div class="metric-line"><span>Time</span><span id="fpCurrentTime">0.00 s</span></div></div>
                     </div>
 
+                    <!-- Energy Inquiry Record Button -->
+                    <div class="button-row" id="energyInquiryBar" style="display:none;margin-top:0.5rem;">
+                        <button id="fpRecordEnergyBtn">⚡ Capture Snapshot</button>
+                        <button class="ghost" id="fpClearEnergyBtn">🗑 Clear Table</button>
+                    </div>
+
                     <!-- Graphs -->
                     <h3 style="margin-top:0.8rem;color:var(--gold-300);">Real-Time Graphs</h3>
                     <div class="graph-pair">
@@ -314,6 +320,7 @@
             <div class="panel full">
                 <div class="tab-nav">
                     <button class="tab-btn active" data-tab="fp-exploration">Guided Exploration</button>
+                    <button class="tab-btn" data-tab="fp-energy-inquiry">⚡ Energy Inquiry</button>
                     <button class="tab-btn" data-tab="fp-theory">Physics Theory</button>
                 </div>
                 <div class="tab-content active" id="fp-exploration-tab">
@@ -323,6 +330,71 @@
                         <div class="inquiry-card"><h3>💨 Damping</h3><p>Increase damping from 0→3 to see amplitude decay. Real springs always have some friction.</p></div>
                     </div>
                 </div>
+                <div class="tab-content" id="fp-energy-inquiry-tab">
+                    <!-- ===== PART 1 ===== -->
+                    <div class="inquiry-card" style="margin-top:0.8rem;border-left:5px solid var(--gold-500);">
+                        <h3>🔮 Part 1 · Predict</h3>
+                        <p>Before you collect any data, think about these questions and jot your predictions in your notebook:</p>
+                        <ol class="inquiry-ol">
+                            <li>If you stretch the spring <strong>twice as far</strong>, does it store twice the energy, less than twice, or more than twice? Why?</li>
+                            <li>At the <strong>equilibrium position</strong> (x = 0), where is all the energy? At the <strong>maximum stretch</strong>?</li>
+                            <li>If you add energy tracking, do you expect the total energy to stay constant or change over time?</li>
+                        </ol>
+                    </div>
+
+                    <!-- ===== PART 2 ===== -->
+                    <div class="inquiry-card" style="margin-top:0.8rem;border-left:5px solid var(--success);">
+                        <h3>📊 Part 2 · Collect Data</h3>
+                        <p><strong>Setup:</strong> Set damping to <em>0.0 (None)</em>. Choose any spring constant k and mass. Click <strong>Start</strong>, then <strong>Pause</strong> at different displacements. Press <strong>⚡ Capture Snapshot</strong> (above the canvas) to record each moment. Aim for at least 6 snapshots across different x values.</p>
+                        <div class="data-table-wrap" style="margin-top:0.8rem;">
+                            <table class="data-table" id="energyDataTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>x (m)</th>
+                                        <th>x² (m²)</th>
+                                        <th>PE (J)</th>
+                                        <th>KE (J)</th>
+                                        <th>Total E (J)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="energyDataBody">
+                                    <tr><td colspan="6" style="color:var(--text-500);font-style:italic;">No data yet — capture snapshots above.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ===== PART 3 ===== -->
+                    <div class="energy-inquiry-layout" style="margin-top:0.8rem;">
+                        <div class="inquiry-card" style="border-left:5px solid var(--danger);">
+                            <h3>📈 Part 3 · Graph &amp; Discover</h3>
+                            <p>The graph below plots your captured <strong>PE</strong> on the y-axis vs. <strong>x²</strong> on the x-axis. Toggle the best-fit line and read the slope.</p>
+                            <p style="margin-top:0.5rem;">💡 <em>What does the slope equal? How does it relate to k?</em></p>
+                            <label class="compact-toggle" style="margin-top:0.7rem;">
+                                <input type="checkbox" id="energyShowBestFit">
+                                <span>Show Best-Fit Line</span>
+                            </label>
+                            <div class="slope-readout hidden" id="energySlopeDisplay" style="margin-top:0.6rem;">
+                                Slope = <strong id="energySlopeValue">—</strong> J/m² &nbsp;·&nbsp; ½k = <strong id="energyHalfK">—</strong> J/m²
+                            </div>
+                        </div>
+                        <canvas id="pevsxSquaredGraph" class="sim-canvas" width="500" height="260" style="min-height:220px;"></canvas>
+                    </div>
+
+                    <!-- ===== PART 4 ===== -->
+                    <div class="inquiry-card" style="margin-top:0.8rem;border-left:5px solid #a78bfa;">
+                        <h3>🧠 Part 4 · Reflect &amp; Conclude</h3>
+                        <ol class="inquiry-ol">
+                            <li>Look at the <strong>Total E</strong> column. Does it stay constant across your snapshots? What does this tell you about energy in the spring?</li>
+                            <li>Your PE vs. x² graph should be a straight line through the origin. What property does this reveal about how PE depends on x?</li>
+                            <li>The slope of PE vs. x² is <strong>½k</strong>. Write the formula for elastic potential energy: <strong>PE = ____</strong></li>
+                            <li>At the moment when KE is zero, where is the mass? Write an equation relating PE<sub>max</sub> to the total energy using your formula.</li>
+                            <li><strong>Extension:</strong> Now try with damping &gt; 0. What happens to Total E over time? Does energy conservation still hold? Where does the energy go?</li>
+                        </ol>
+                    </div>
+                </div>
+
                 <div class="tab-content" id="fp-theory-tab">
                     <div class="theory-columns">
                         <div>
@@ -347,6 +419,6 @@
         </footer>
     </div>
 
-    <script src="simulation.js?v=1.2"></script>
+    <script src="simulation.js?v=1.3"></script>
 </body>
 </html>
