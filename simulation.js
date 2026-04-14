@@ -1261,7 +1261,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 xSq: x * x,
                 pe: fpSim.potentialEnergy,
                 ke: fpSim.kineticEnergy,
-                total: fpSim.potentialEnergy + fpSim.kineticEnergy
+                total: fpSim.totalEnergy
             });
             rebuildEnergyTable();
             drawPEvsx2Graph();
