@@ -36,6 +36,7 @@
         <div class="mode-tabs">
             <button class="mode-tab active" data-mode="lab" id="labModeBtn">🔬 Lab Mode</button>
             <button class="mode-tab ghost" data-mode="freeplay" id="freeplayModeBtn">🎮 Free Play</button>
+            <button class="mode-tab ghost" data-mode="energy-inquiry" id="energyInquiryModeBtn">⚡ Energy Inquiry</button>
         </div>
 
         <!-- ==================== LAB MODE ==================== -->
@@ -243,12 +244,6 @@
                         <div class="metric-card"><div class="metric-line"><span>Time</span><span id="fpCurrentTime">0.00 s</span></div></div>
                     </div>
 
-                    <!-- Energy Inquiry Record Button -->
-                    <div class="button-row" id="energyInquiryBar" style="display:none;margin-top:0.5rem;">
-                        <button id="fpRecordEnergyBtn">⚡ Capture Snapshot</button>
-                        <button class="ghost" id="fpClearEnergyBtn">🗑 Clear Table</button>
-                    </div>
-
                     <!-- Graphs -->
                     <h3 style="margin-top:0.8rem;color:var(--gold-300);">Real-Time Graphs</h3>
                     <div class="graph-pair">
@@ -320,7 +315,6 @@
             <div class="panel full">
                 <div class="tab-nav">
                     <button class="tab-btn active" data-tab="fp-exploration">Guided Exploration</button>
-                    <button class="tab-btn" data-tab="fp-energy-inquiry">⚡ Energy Inquiry</button>
                     <button class="tab-btn" data-tab="fp-theory">Physics Theory</button>
                 </div>
                 <div class="tab-content active" id="fp-exploration-tab">
@@ -414,11 +408,146 @@
             </div>
         </div>
 
+        <!-- ==================== ENERGY INQUIRY MODE ==================== -->
+        <div class="mode-content" id="energy-inquiry-mode">
+            <div class="panel full">
+                <h2>⚡ Energy Inquiry</h2>
+                <p class="subtitle">Discover how elastic potential energy depends on displacement — and verify that mechanical energy is conserved. You will build the formula <strong>PE = ½kΔx²</strong> from your own data.</p>
+            </div>
+
+            <div class="app-layout">
+                <!-- Canvas + readouts -->
+                <div class="panel wide">
+                    <div class="sim-toolbar">
+                        <h2>Spring Oscillation</h2>
+                        <p class="hint">Start the sim, pause at different positions, and capture snapshots.</p>
+                    </div>
+                    <canvas id="energySpringCanvas" class="sim-canvas" width="700" height="380" role="img" aria-label="Horizontal spring oscillation for energy inquiry"></canvas>
+
+                    <div class="metric-grid" style="grid-template-columns:repeat(4,1fr);margin-top:0.7rem;">
+                        <div class="metric-card"><div class="metric-line"><span>Displacement (x)</span><span id="eiDisplacement">0.00 m</span></div></div>
+                        <div class="metric-card" style="border-left-color:var(--danger);"><div class="metric-line"><span>PE (½kx²)</span><span id="eiPE">0.00 J</span></div></div>
+                        <div class="metric-card" style="border-left-color:var(--success);"><div class="metric-line"><span>KE (½mv²)</span><span id="eiKE">0.00 J</span></div></div>
+                        <div class="metric-card" style="border-left-color:#a78bfa;"><div class="metric-line"><span>Total E</span><span id="eiTotalE">0.00 J</span></div></div>
+                    </div>
+
+                    <div class="button-row" style="margin-top:0.6rem;">
+                        <button id="eiCaptureBtn">⚡ Capture Snapshot</button>
+                        <button class="ghost" id="eiClearBtn">🗑 Clear Table</button>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="panel narrow">
+                    <h2>Controls</h2>
+                    <p class="hint" style="margin-bottom:0.6rem;">Keep Damping at 0 for Parts 1–3. Use damping only for the extension in Part 4.</p>
+                    <div class="controls-grid">
+                        <label>
+                            Spring Constant (k)
+                            <div class="range-row">
+                                <input type="range" id="eiSpringConstant" min="5" max="100" step="1" value="30">
+                                <output id="eiSpringConstantDisplay">30 N/m</output>
+                            </div>
+                        </label>
+                        <label>
+                            Mass (m)
+                            <div class="range-row">
+                                <input type="range" id="eiMass" min="0.5" max="10" step="0.1" value="2">
+                                <output id="eiMassDisplay">2.0 kg</output>
+                            </div>
+                        </label>
+                        <label class="control-span-2">
+                            Initial Displacement (x₀)
+                            <div class="range-row">
+                                <input type="range" id="eiDisplacementSlider" min="-2" max="2" step="0.05" value="1">
+                                <output id="eiDisplacementDisplay">1.00 m</output>
+                            </div>
+                        </label>
+                        <label class="control-span-2">
+                            Damping (b) — keep at 0 for inquiry
+                            <div class="range-row">
+                                <input type="range" id="eiDamping" min="0" max="5" step="0.1" value="0">
+                                <output id="eiDampingDisplay">0.0 (None)</output>
+                            </div>
+                        </label>
+                        <label class="control-span-2">
+                            Simulation Speed
+                            <div class="range-row">
+                                <input type="range" id="eiSpeed" min="0.1" max="2.5" step="0.1" value="1">
+                                <output id="eiSpeedDisplay">1.0x</output>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="button-row">
+                        <button id="eiStartBtn">▶ Start</button>
+                        <button class="ghost" id="eiPauseBtn" disabled>⏸ Pause</button>
+                        <button class="ghost" id="eiStepBtn">⏭ Step</button>
+                        <button class="ghost" id="eiResetBtn">↺ Reset</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== Inquiry Parts ===== -->
+            <div class="panel full" style="margin-top:0.9rem;">
+                <!-- PART 1 -->
+                <div class="inquiry-card" style="border-left:5px solid var(--gold-500);">
+                    <h3>🔮 Part 1 · Predict</h3>
+                    <p>Before collecting data, answer these in your notebook:</p>
+                    <ol class="inquiry-ol">
+                        <li>If you stretch the spring <strong>twice as far</strong>, does it store twice the energy, less than twice, or more than twice? Why?</li>
+                        <li>At the <strong>equilibrium position</strong> (x = 0), where is all the energy? What about at the <strong>maximum stretch</strong>?</li>
+                        <li>Do you expect the total energy to stay constant or change over time (with no damping)?</li>
+                    </ol>
+                </div>
+
+                <!-- PART 2 -->
+                <div class="inquiry-card" style="margin-top:0.8rem;border-left:5px solid var(--success);">
+                    <h3>📊 Part 2 · Collect Data</h3>
+                    <p>Set damping to <em>0.0</em>. Click <strong>Start</strong>, then <strong>Pause</strong> at several different positions. Press <strong>⚡ Capture Snapshot</strong> above to record. Aim for <strong>at least 6 snapshots</strong> spread across a range of x values.</p>
+                    <div class="data-table-wrap" style="margin-top:0.8rem;">
+                        <table class="data-table" id="energyDataTable">
+                            <thead><tr><th>#</th><th>x (m)</th><th>x² (m²)</th><th>PE (J)</th><th>KE (J)</th><th>Total E (J)</th></tr></thead>
+                            <tbody id="energyDataBody"><tr><td colspan="6" style="color:var(--text-500);font-style:italic;">No data yet — capture snapshots above.</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- PART 3 -->
+                <div class="energy-inquiry-layout" style="margin-top:0.8rem;">
+                    <div class="inquiry-card" style="border-left:5px solid var(--danger);">
+                        <h3>📈 Part 3 · Graph &amp; Discover</h3>
+                        <p>The graph plots your <strong>PE</strong> (y-axis) vs. <strong>x²</strong> (x-axis). Toggle the best-fit line and read the slope.</p>
+                        <p style="margin-top:0.5rem;">💡 <em>What does the slope equal? How does it relate to k?</em></p>
+                        <label class="compact-toggle" style="margin-top:0.7rem;">
+                            <input type="checkbox" id="energyShowBestFit">
+                            <span>Show Best-Fit Line</span>
+                        </label>
+                        <div class="slope-readout hidden" id="energySlopeDisplay" style="margin-top:0.6rem;">
+                            Slope = <strong id="energySlopeValue">—</strong> J/m² &nbsp;·&nbsp; ½k = <strong id="energyHalfK">—</strong> J/m²
+                        </div>
+                    </div>
+                    <canvas id="pevsxSquaredGraph" class="sim-canvas" width="500" height="260" style="min-height:220px;"></canvas>
+                </div>
+
+                <!-- PART 4 -->
+                <div class="inquiry-card" style="margin-top:0.8rem;border-left:5px solid #a78bfa;">
+                    <h3>🧠 Part 4 · Reflect &amp; Conclude</h3>
+                    <ol class="inquiry-ol">
+                        <li>Look at the <strong>Total E</strong> column. Is it constant? What does this tell you about energy in the spring system?</li>
+                        <li>Your PE vs. x² graph should be a straight line through the origin. What relationship does this reveal between PE and x?</li>
+                        <li>The slope equals <strong>½k</strong>. Write the complete formula: <strong>PE = ____</strong></li>
+                        <li>When KE = 0, where is the mass? Write an equation relating PE<sub>max</sub> to total energy using your formula.</li>
+                        <li><strong>Extension:</strong> Enable damping &gt; 0 and re-run. What happens to Total E over time? Where does the energy go?</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
         <footer>
             <p>© 2026 Vladimir Lopez · The Thinking Experiment · Interactive Physics Simulations</p>
         </footer>
     </div>
 
-    <script src="simulation.js?v=1.4"></script>
+    <script src="simulation.js?v=1.5"></script>
 </body>
 </html>
