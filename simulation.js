@@ -646,6 +646,7 @@ class FreePlaySimulation {
         this.minVelocity = 0;
         this.time = 0;
         this.dt = 0.008;
+        this.simSpeed = 1;
 
         this.isRunning = false;
         this.animationId = null;
@@ -718,12 +719,13 @@ class FreePlaySimulation {
     }
 
     stepPhysics() {
+        const activeDt = this.dt * this.simSpeed;
         const acc = (-this.springConstant * this.displacement - this.damping * this.velocity) / this.mass;
-        this.velocity += acc * this.dt;
+        this.velocity += acc * activeDt;
         if (this.velocity > this.maxVelocity) this.maxVelocity = this.velocity;
         if (this.velocity < this.minVelocity) this.minVelocity = this.velocity;
-        this.displacement += this.velocity * this.dt;
-        this.time += this.dt;
+        this.displacement += this.velocity * activeDt;
+        this.time += activeDt;
 
         if (this.showTrail) {
             this.trailHistory.push({ x: this.displacement, t: this.time });
@@ -1122,6 +1124,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const v = parseFloat(e.target.value);
             el('fpDampingDisplay').textContent = v === 0 ? '0.0 (None)' : v < 1 ? v.toFixed(1) + ' (Light)' : v < 3 ? v.toFixed(1) + ' (Medium)' : v.toFixed(1) + ' (Heavy)';
         });
+        el('fpSpeed').addEventListener('input', (e) => {
+            fpSim.simSpeed = parseFloat(e.target.value);
+            el('fpSpeedDisplay').textContent = parseFloat(e.target.value).toFixed(1) + 'x';
+        });
+
 
         el('fpStartBtn').addEventListener('click', () => {
             fpSim.start(); el('fpStartBtn').disabled = true; el('fpPauseBtn').disabled = false; el('fpStepBtn').disabled = true;
