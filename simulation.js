@@ -642,6 +642,8 @@ class FreePlaySimulation {
         this.initialDisplacement = 1;
         this.displacement = this.initialDisplacement;
         this.velocity = 0;
+        this.maxVelocity = 0;
+        this.minVelocity = 0;
         this.time = 0;
         this.dt = 0.008;
 
@@ -684,6 +686,8 @@ class FreePlaySimulation {
     reset() {
         this.displacement = this.initialDisplacement;
         this.velocity = 0;
+        this.maxVelocity = 0;
+        this.minVelocity = 0;
         this.time = 0;
         this.trailHistory = [];
         this.positionData = [];
@@ -709,8 +713,15 @@ class FreePlaySimulation {
 
     animate() {
         if (!this.isRunning) return;
+        this.stepPhysics();
+        this.animationId = requestAnimationFrame(() => this.animate());
+    }
+
+    stepPhysics() {
         const acc = (-this.springConstant * this.displacement - this.damping * this.velocity) / this.mass;
         this.velocity += acc * this.dt;
+        if (this.velocity > this.maxVelocity) this.maxVelocity = this.velocity;
+        if (this.velocity < this.minVelocity) this.minVelocity = this.velocity;
         this.displacement += this.velocity * this.dt;
         this.time += this.dt;
 
@@ -726,7 +737,6 @@ class FreePlaySimulation {
         this.draw();
         this.drawGraphs();
         this.updateDisplay();
-        this.animationId = requestAnimationFrame(() => this.animate());
     }
 
     draw() {
@@ -909,6 +919,8 @@ class FreePlaySimulation {
         const el = (id) => document.getElementById(id);
         el('fpCurrentDisplacement').textContent = this.displacement.toFixed(2) + ' m';
         el('fpCurrentVelocity').textContent = this.velocity.toFixed(2) + ' m/s';
+        if(el('fpMaxVelocity')) el('fpMaxVelocity').textContent = this.maxVelocity.toFixed(2) + ' m/s';
+        if(el('fpMinVelocity')) el('fpMinVelocity').textContent = this.minVelocity.toFixed(2) + ' m/s';
         el('fpCurrentForce').textContent = this.springForce.toFixed(2) + ' N';
         el('fpCurrentPeriod').textContent = this.period.toFixed(2) + ' s';
         el('fpCurrentTime').textContent = this.time.toFixed(2) + ' s';
@@ -1112,15 +1124,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         el('fpStartBtn').addEventListener('click', () => {
-            fpSim.start(); el('fpStartBtn').disabled = true; el('fpPauseBtn').disabled = false;
+            fpSim.start(); el('fpStartBtn').disabled = true; el('fpPauseBtn').disabled = false; el('fpStepBtn').disabled = true;
             el('fpSpringConstant').disabled = true; el('fpMass').disabled = true; el('fpDisplacement').disabled = true;
         });
         el('fpPauseBtn').addEventListener('click', () => {
-            fpSim.pause(); el('fpStartBtn').disabled = false; el('fpPauseBtn').disabled = true;
+            fpSim.pause(); el('fpStartBtn').disabled = false; el('fpPauseBtn').disabled = true; el('fpStepBtn').disabled = false;
+        });
+        el('fpStepBtn').addEventListener('click', () => {
+            fpSim.stepPhysics();
         });
         el('fpResetBtn').addEventListener('click', () => {
             fpSim.pause(); fpSim.reset();
-            el('fpStartBtn').disabled = false; el('fpPauseBtn').disabled = true;
+            el('fpStartBtn').disabled = false; el('fpPauseBtn').disabled = true; el('fpStepBtn').disabled = false;
             el('fpSpringConstant').disabled = false; el('fpMass').disabled = false; el('fpDisplacement').disabled = false;
         });
 
@@ -1129,6 +1144,7 @@ document.addEventListener('DOMContentLoaded', () => {
         el('fpShowTrail').addEventListener('change', (e) => { fpSim.showTrail = e.target.checked; if (!e.target.checked) fpSim.trailHistory = []; fpSim.draw(); });
 
         el('fpPauseBtn').disabled = true;
+        el('fpStepBtn').disabled = false;
     }
 
     // ---- Keyboard shortcuts ----
