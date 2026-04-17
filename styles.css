@@ -1,31 +1,9 @@
 /* ================================================================
-   Hooke's Law Simulation — matching collisions design system
+   Hooke's Law Simulation — Design System (Light Theme Only)
    ================================================================ */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap");
 
 :root {
-  --bg-950: #090b0f;
-  --bg-900: #11141b;
-  --bg-800: #1e2430;
-  --text-100: #eef2f9;
-  --text-300: #c9d1df;
-  --text-500: #a9b2c3;
-  --gold-500: #c8a24a;
-  --gold-400: #d8b767;
-  --gold-300: #e5cc8f;
-  --surface: rgba(17, 20, 27, 0.93);
-  --surface-alt: rgba(30, 36, 48, 0.9);
-  --border: rgba(229, 204, 143, 0.22);
-  --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.4);
-  --app-bg: radial-gradient(circle at 16% 10%, #2b364d 0%, #1d2433 38%, #0b0e15 100%);
-  --panel-text-strong: #fff5df;
-  --rail-tick: #f1dc9d;
-  --success: #5cbf79;
-  --danger: #ff5f7a;
-  --font-mono: 'IBM Plex Sans', monospace;
-}
-
-body[data-theme="light"] {
   --bg-950: #e9f4fb;
   --bg-900: #fff4dd;
   --bg-800: #ffffff;
@@ -45,6 +23,10 @@ body[data-theme="light"] {
     linear-gradient(165deg, #e9f4fb, #fff4dd);
   --panel-text-strong: #123140;
   --rail-tick: #123140;
+  --success: #2e7d32;
+  --danger: #d32f2f;
+  --font-mono: 'IBM Plex Sans', monospace;
+  --success-transparent: rgba(46, 125, 50, 0.1);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -63,16 +45,10 @@ canvas { will-change: transform; transform: translateZ(0); }
 /* ===== Background Grid ===== */
 .bg-grid {
   position: fixed; inset: 0; z-index: -1;
-  background-image:
-    linear-gradient(rgba(229, 204, 143, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(229, 204, 143, 0.07) 1px, transparent 1px);
-  background-size: 44px 44px;
-  mask-image: radial-gradient(circle at center, black 42%, transparent 95%);
-}
-
-body[data-theme="light"] .bg-grid {
   background-image: linear-gradient(rgba(15, 126, 155, 0.06) 1px, transparent 1px),
     linear-gradient(90deg, rgba(214, 123, 25, 0.06) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(circle at center, black 42%, transparent 95%);
 }
 
 h1, h2, h3, h4 { margin: 0; font-family: "Inter", "IBM Plex Sans", "Segoe UI", sans-serif; }
@@ -86,8 +62,7 @@ h1, h2, h3, h4 { margin: 0; font-family: "Inter", "IBM Plex Sans", "Segoe UI", s
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 1.2rem 1.4rem;
-  padding-right: 12.5rem;
-  background: linear-gradient(130deg, rgba(20, 25, 36, 0.95), rgba(11, 13, 19, 0.95));
+  background: linear-gradient(160deg, #ffffff, #f7fbfd);
   box-shadow: var(--shadow-lg);
   position: relative;
   overflow: hidden;
@@ -95,10 +70,6 @@ h1, h2, h3, h4 { margin: 0; font-family: "Inter", "IBM Plex Sans", "Segoe UI", s
 .hero::before {
   content: ""; position: absolute; inset: 0 auto 0 0;
   width: 12px; background: var(--gold-500); border-radius: 14px 0 0 14px;
-}
-body[data-theme="light"] .hero {
-  background: linear-gradient(160deg, #ffffff, #f7fbfd);
-  border-color: #c8dbe3;
 }
 .kicker {
   margin: 0; font-size: 0.8rem; text-transform: uppercase;
@@ -114,10 +85,6 @@ body[data-theme="light"] .hero {
   display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
 }
 .hero-top > :first-child { flex: 1 1 auto; min-width: 0; padding-left: 0.4rem; }
-.display-toggle {
-  min-width: 156px; position: absolute; top: 1rem; right: 1rem;
-  padding-inline: 1rem; z-index: 2;
-}
 
 /* ===== Mode Tabs ===== */
 .mode-tabs {
@@ -126,10 +93,19 @@ body[data-theme="light"] .hero {
 .mode-tab {
   flex: 1; font-weight: 700; font-size: 1.05rem;
   text-align: center; border-radius: 10px; padding: 0.62rem 0.82rem;
+  background: #f0f8fb;
+  color: var(--text-300);
+  border: 1px solid #c8dbe3;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.mode-tab:hover:not(.active) {
+  background: #dff0f6;
+  color: var(--text-100);
 }
 .mode-tab.active {
-  background: linear-gradient(135deg, var(--gold-500), var(--gold-400));
-  color: #2b1d06; border: 1px solid var(--gold-500);
+  background: linear-gradient(135deg, #0d839f, #0b5f77);
+  color: #ffffff;
+  border-color: #0a5d74;
 }
 .mode-content { display: none; }
 .mode-content.active { display: block; }
@@ -145,11 +121,8 @@ body[data-theme="light"] .hero {
 .panel {
   border: 1px solid var(--border); border-radius: 12px;
   background: var(--surface); padding: 1rem;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
-  overflow: hidden;
-}
-body[data-theme="light"] .panel {
   box-shadow: 0 6px 16px rgba(12, 54, 68, 0.08);
+  overflow: hidden;
 }
 .full { grid-column: span 12; }
 .wide { grid-column: span 8; }
@@ -170,25 +143,17 @@ body[data-theme="light"] .panel {
 
 /* ===== Buttons ===== */
 button {
-  border: 1px solid var(--gold-500); border-radius: 10px;
-  background: linear-gradient(135deg, var(--gold-500), var(--gold-400));
-  color: #2b1d06; font-weight: 700; font: inherit;
+  border: 1px solid #0a5d74; border-radius: 10px;
+  background: linear-gradient(160deg, #0d839f, #0b5f77);
+  color: #ffffff; font-weight: 700; font: inherit;
   padding: 0.58rem 0.82rem; cursor: pointer;
   transition: filter 0.15s;
 }
 button:hover { filter: brightness(1.06); }
 button.ghost {
-  background: rgba(200, 162, 74, 0.12);
-  color: var(--text-100);
-}
-button:disabled { opacity: 0.45; cursor: not-allowed; filter: none; }
-body[data-theme="light"] button {
-  background: linear-gradient(160deg, #0d839f, #0b5f77);
-  color: #ffffff; border-color: #0a5d74;
-}
-body[data-theme="light"] button.ghost {
   background: #f6fbfd; color: var(--text-100); border-color: #9dbac5;
 }
+button:disabled { opacity: 0.45; cursor: not-allowed; filter: none; }
 .button-row {
   margin-top: 0.7rem; display: flex; flex-wrap: wrap; gap: 0.55rem;
 }
@@ -197,14 +162,9 @@ body[data-theme="light"] button.ghost {
 /* ===== Inputs / Sliders ===== */
 input, select, output { font: inherit; }
 input, select, output {
-  border: 1px solid var(--border); border-radius: 10px;
-  background: var(--surface-alt); color: var(--text-100);
+  border: 1px solid #a9c4cf; border-radius: 10px;
+  background: #f9fdff; color: var(--text-100);
   padding: 0.54rem 0.62rem;
-}
-body[data-theme="light"] input,
-body[data-theme="light"] select,
-body[data-theme="light"] output {
-  background: #f9fdff; color: var(--text-100); border-color: #a9c4cf;
 }
 label {
   display: flex; flex-direction: column; gap: 0.45rem;
@@ -234,13 +194,8 @@ label {
 /* ===== Sim Canvas ===== */
 .sim-canvas {
   width: 100%; max-width: 100%; height: auto; display: block;
-  border: 1px solid var(--border); border-radius: 12px;
-  background: radial-gradient(circle at 12% 12%, rgba(223, 190, 115, 0.14), transparent 34%),
-    linear-gradient(180deg, #0d1118 0%, #090b0f 100%);
-}
-body[data-theme="light"] .sim-canvas {
+  border: 1px solid #b8d1db; border-radius: 12px;
   background: linear-gradient(180deg, #f8fcff, #f2f8fb);
-  border-color: #b8d1db;
 }
 .graph-canvas { margin-top: 0.5rem; }
 .graph-canvas-sm { height: 180px; }
@@ -264,15 +219,11 @@ body[data-theme="light"] .sim-canvas {
 }
 .readout-grid { grid-template-columns: repeat(4, 1fr); }
 .metric-card {
-  border: 1px solid var(--border); border-left: 5px solid var(--gold-500);
-  background: var(--surface-alt); border-radius: 10px;
+  border: 1px solid #b8d1db; border-left: 5px solid var(--gold-500);
+  background: linear-gradient(170deg, #f7fcff, #f1f9fd); border-radius: 10px;
   padding: 0.62rem 0.7rem;
   min-height: 52px; /* Prevent height jumping */
   display: flex; align-items: center;
-}
-body[data-theme="light"] .metric-card {
-  background: linear-gradient(170deg, #f7fcff, #f1f9fd);
-  border-color: #b8d1db;
 }
 .metric-line {
   display: flex; justify-content: space-between; align-items: baseline;
@@ -310,17 +261,17 @@ body[data-theme="light"] .metric-card {
   width: 100%; border-collapse: collapse; font-size: 0.85rem;
 }
 .data-table th {
-  background: rgba(200, 162, 74, 0.18);
-  color: var(--gold-300); padding: 0.5rem 0.4rem; text-align: center;
+  background: rgba(15, 126, 155, 0.12);
+  color: var(--gold-500); padding: 0.5rem 0.4rem; text-align: center;
   font-weight: 700; font-size: 0.8rem; border-bottom: 1px solid var(--border);
 }
 .data-table td {
   padding: 0.4rem; text-align: center; color: var(--text-500);
-  border-bottom: 1px solid rgba(229, 204, 143, 0.1);
+  border-bottom: 1px solid #c8dbe3;
 }
 .data-table tr.recorded td {
   color: var(--text-100); font-weight: 600;
-  background: rgba(200, 162, 74, 0.08);
+  background: rgba(15, 126, 155, 0.05);
 }
 
 /* ===== Slope Readout ===== */
@@ -359,7 +310,7 @@ body[data-theme="light"] .metric-card {
   color: var(--text-500); user-select: none;
 }
 .teacher-details[open] summary {
-  background: rgba(255, 95, 122, 0.12); color: var(--danger);
+  background: rgba(211, 47, 47, 0.1); color: var(--danger);
   border-bottom: 1px solid var(--border);
 }
 .teacher-inner { padding: 0.8rem; }
@@ -376,18 +327,8 @@ body[data-theme="light"] .metric-card {
 }
 .tab-btn:hover { color: var(--text-100); background: rgba(128, 128, 128, 0.05); }
 .tab-btn.active {
-  color: var(--gold-300); border-bottom-color: var(--gold-500);
-  background: transparent;
-}
-body[data-theme="light"] .tab-btn {
-  background: transparent;
-  color: var(--text-500);
-}
-body[data-theme="light"] .tab-btn:hover {
-  color: var(--text-100);
-}
-body[data-theme="light"] .tab-btn.active {
   color: var(--gold-400); border-bottom-color: var(--gold-400);
+  background: transparent;
 }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
@@ -453,9 +394,6 @@ output:focus-visible {
 @media (max-width: 1180px) {
   .inquiry-grid, .wide, .narrow { grid-column: span 12; }
   .hero { padding-right: 1.4rem; }
-  .display-toggle {
-    position: static; min-width: 0; width: auto; max-width: 220px;
-  }
   .hero-top { flex-direction: column; }
   .readout-grid { grid-template-columns: repeat(4, 1fr); }
 }
@@ -470,6 +408,5 @@ output:focus-visible {
   .theory-columns { grid-template-columns: 1fr; }
   .hero { padding: 1rem 1rem 1.1rem; }
   .hero h1 { font-size: clamp(1.7rem, 10vw, 2.8rem); }
-  .display-toggle { max-width: none; }
   .range-row { grid-template-columns: 1fr 3rem; }
 }
