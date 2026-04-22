@@ -1,6 +1,6 @@
 
 function getCanvasColor(darkColor, lightColor) {
-    return document.body.dataset.theme === 'light' ? lightColor : darkColor;
+    return lightColor;
 }
 // ================================================================
 // Hooke's Law Simulation — Lab Mode + Free Play
@@ -1349,20 +1349,6 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (e.code === 'KeyR') { e.preventDefault(); document.getElementById('eiResetBtn').click(); }
         }
     });
-
-
-    // Theme observer to redraw canvases
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.attributeName === 'data-theme') {
-                if (lab) lab.draw();
-                if (graph) graph.draw();
-                if (fpSim && !fpSim.isRunning) { fpSim.draw(); fpSim.drawGraphs(); }
-                if (eiSim && !eiSim.isRunning) { eiSim.draw(); }
-            }
-        });
-    });
-    observer.observe(document.body, { attributes: true });
 
     function announce(msg) {
         const el = document.getElementById('sr-announcements');
